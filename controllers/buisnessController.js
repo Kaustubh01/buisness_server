@@ -212,6 +212,7 @@ exports.showBusinesses = async (req, res) => {
 
       business.inventory.push(product);
       await business.save();
+
       await product.save();
       res.status(201).json({ message: 'Product added successfully', product });
     } catch (error) {
@@ -221,10 +222,23 @@ exports.showBusinesses = async (req, res) => {
   
   // Update product details (e.g., quantity or price)
   exports.updateProduct = async (req, res) => {
-    const { productId } = req.params; // assuming productId is passed as a route parameter
+    const { productId, businessId } = req.params; // assuming productId is passed as a route parameter
     const { productName, productDescription, quantity, price, unitsSold } = req.body;
   
     try {
+      if(!businessId) {
+        return res.status(400).json({ error: 'Business ID is required' });
+      }
+
+      const business = await Business.findById(businessId);
+      if (!business) {
+        return res.status(404).json({ error: 'Business not found' });
+      }
+
+      if(business.inventory.indexOf(productId) === -1) {
+        return res.status(404).json({ error: 'Product not found in the business inventory' });
+      }
+
       const product = await Inventory.findOne({ productId });
   
       if (!product) {
@@ -246,15 +260,32 @@ exports.showBusinesses = async (req, res) => {
   
   // Remove a product from the inventory
   exports.removeProduct = async (req, res) => {
-    const { productId } = req.params; // assuming productId is passed as a route parameter
+    const { productId, businessId } = req.params; // assuming productId is passed as a route parameter
   
     try {
+      if(!businessId) {
+        return res.status(400).json({ error: 'Business ID is required' });
+      }
+
+      const business = await Business.findById(businessId);
+      if (!business) {
+        return res.status(404).json({ error: 'Business not found' });
+      }
+
+      if(business.inventory.indexOf(productId) === -1) {
+        return res.status(404).json({ error: 'Product not found in the business inventory' });
+      }
+
       const product = await Inventory.findOneAndDelete({ productId });
   
       if (!product) {
         return res.status(404).json({ error: 'Product not found' });
       }
-  
+      
+      business.inventory = business.inventory.filter(item => item.productId !== productId);
+      await business.save();
+
+
       res.status(200).json({ message: 'Product removed successfully', product });
     } catch (error) {
       res.status(500).json({ error: error.message });
@@ -263,28 +294,67 @@ exports.showBusinesses = async (req, res) => {
   
   // View all products in the inventory
   exports.viewInventory = async (req, res) => {
+    const { businessId } = req.params; // Assuming businessId is passed as a route parameter
+  
     try {
-      const products = await Inventory.find();
-      res.status(200).json({ products });
+      // Check if businessId is provided
+      if (!businessId) {
+        return res.status(400).json({ error: 'Business ID is required' });
+      }
+  
+      // Find the business by ID
+      const business = await Business.findById(businessId).populate('inventory'); // Populate the inventory field if it's a reference
+  
+      // Check if the business exists
+      if (!business) {
+        return res.status(404).json({ error: 'Business not found' });
+      }
+  
+      // Get the inventory products
+      const products = business.inventory || [];
+  
+      return res.status(200).json({ products });
     } catch (error) {
-      res.status(500).json({ error: error.message });
+      // Handle unexpected errors
+      return res.status(500).json({ error: 'An error occurred while retrieving inventory', details: error.message });
     }
   };
   
   // View details of a specific product by productId
-  exports.viewProduct = async (req, res) => {
-    const { productId } = req.params; // assuming productId is passed as a route parameter
-  
-    try {
-      const product = await Inventory.findOne({ productId });
-  
-      if (!product) {
-        return res.status(404).json({ error: 'Product not found' });
-      }
-  
-      res.status(200).json({ product });
-    } catch (error) {
-      res.status(500).json({ error: error.message });
+exports.viewProduct = async (req, res) => {
+  const { productId, businessId } = req.params; // Assuming productId and businessId are passed as route parameters
+
+  try {
+    // Check if businessId and productId are provided
+    if (!businessId) {
+      return res.status(400).json({ error: 'Business ID is required' });
     }
-  };
+    if (!productId) {
+      return res.status(400).json({ error: 'Product ID is required' });
+    }
+
+    // Find the business by ID
+    const business = await Business.findById(businessId).populate('inventory'); // Populate inventory if it's a reference
+
+    // Check if the business exists
+    if (!business) {
+      return res.status(404).json({ error: 'Business not found' });
+    }
+
+    // Find the specific product in the inventory
+    const product = business.inventory.find(item => item._id.toString() === productId);
+
+    // Check if the product exists
+    if (!product) {
+      return res.status(404).json({ error: 'Product not found in the business inventory' });
+    }
+
+    // Return the product details
+    return res.status(200).json({ product });
+  } catch (error) {
+    // Handle unexpected errors
+    return res.status(500).json({ error: 'An error occurred while retrieving the product', details: error.message });
+  }
+};
+
   
