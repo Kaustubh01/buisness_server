@@ -183,6 +183,27 @@ exports.showBusinesses = async (req, res) => {
         quantity,
         price,
       });
+
+      if(!productId) {
+        return res.status(400).json({ error: 'Product ID is required' });
+      }
+
+      if(!productName) {
+        return res.status(400).json({ error: 'Product Name is required' });
+      }
+
+      if(!productDescription) {
+        return res.status(400).json({ error: 'Product Description is required' });
+      }
+
+      if(!quantity) {
+        return res.status(400).json({ error: 'Quantity is required' });
+      }
+
+      if(!price) {
+        return res.status(400).json({ error: 'Price is required' });
+      }
+      
   
       await product.save();
       res.status(201).json({ message: 'Product added successfully', product });
