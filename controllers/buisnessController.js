@@ -235,12 +235,14 @@ exports.showBusinesses = async (req, res) => {
         return res.status(404).json({ error: 'Business not found' });
       }
 
+      //check if product exists in the business inventory
       if(business.inventory.indexOf(productId) === -1) {
         return res.status(404).json({ error: 'Product not found in the business inventory' });
       }
 
-      const product = await Inventory.findOne({ productId });
-  
+      //search product by id
+      const product = await Inventory.findById(productId);
+
       if (!product) {
         return res.status(404).json({ error: 'Product not found' });
       }
@@ -272,16 +274,19 @@ exports.showBusinesses = async (req, res) => {
         return res.status(404).json({ error: 'Business not found' });
       }
 
+      //check if product exists in the business inventory
       if(business.inventory.indexOf(productId) === -1) {
         return res.status(404).json({ error: 'Product not found in the business inventory' });
       }
 
-      const product = await Inventory.findOneAndDelete({ productId });
-  
+      //search product by id
+      const product = await Inventory.findById(productId);
+
       if (!product) {
         return res.status(404).json({ error: 'Product not found' });
       }
-      
+
+
       business.inventory = business.inventory.filter(item => item.productId !== productId);
       await business.save();
 
