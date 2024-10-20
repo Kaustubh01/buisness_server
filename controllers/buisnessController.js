@@ -283,9 +283,15 @@ exports.showBusinesses = async (req, res) => {
       const product = await Inventory.findById(productId);
 
       if (!product) {
-        return res.status(404).json({ error: 'Product not found' });
+        return res.status(405).json({ error: 'Product not found' });
       }
 
+      //delete that product
+      const productDeleted = await Inventory.findByIdAndDelete(productId);
+
+      if (!productDeleted) {
+        return res.status(404).json({ error: 'Product not found' });
+      }
 
       business.inventory = business.inventory.filter(item => item.productId !== productId);
       await business.save();
