@@ -39,6 +39,10 @@ const businessSchema = new Schema({
     type: Date,
     default: Date.now,
   },
+  inventory: [{
+    type: Schema.Types.ObjectId,
+    ref: 'Inventory',
+  }],
 });
 
 const Business = mongoose.model('Business', businessSchema);

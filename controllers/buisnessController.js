@@ -173,7 +173,8 @@ exports.showBusinesses = async (req, res) => {
 
   // Add a new product to the inventory
   exports.addProduct = async (req, res) => {
-    const {  productName, productDescription, quantity, price } = req.body;
+    const {businessId} = req.params;
+    const { productName, productDescription, quantity, price } = req.body;
   
     try {
       const product = new Inventory({
@@ -183,6 +184,10 @@ exports.showBusinesses = async (req, res) => {
         quantity,
         price,
       });
+
+      if(!businessId) {
+        return res.status(400).json({ error: 'Business ID is required' });
+      }
 
       if(!productName) {
         return res.status(400).json({ error: 'Product Name is required' });
@@ -200,7 +205,13 @@ exports.showBusinesses = async (req, res) => {
         return res.status(400).json({ error: 'Price is required' });
       }
 
-  
+      const business = await Business.findById(businessId);
+      if (!business) {
+        return res.status(404).json({ error: 'Business not found' });
+      }
+
+      business.inventory.push(product);
+      await business.save();
       await product.save();
       res.status(201).json({ message: 'Product added successfully', product });
     } catch (error) {
