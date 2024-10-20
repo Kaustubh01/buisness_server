@@ -4,7 +4,8 @@ const bodyParser = require('body-parser');
 
 const db = require('./config/db');
 const authRoutes = require('./routes/authRoutes');
-const businessRoutes = require('./routes/businessRoutes'); // Import inventory routes
+const businessRoutes = require('./routes/businessRoutes');
+const inventoryRoutes = require('./routes/inventoryRoutes') // Import inventory routes
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -21,6 +22,7 @@ app.use(bodyParser.json());
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/business', businessRoutes); // Add inventory route
+app.use('/api/inventory', inventoryRoutes);
 
 // Root route
 app.get('/', (req, res) => {
