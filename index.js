@@ -1,6 +1,5 @@
 const express = require('express');
 const cors = require('cors');
-// body-parser is no longer necessary as express.json() and express.urlencoded() handle it
 const bodyParser = require('body-parser');
 
 const db = require('./config/db');
