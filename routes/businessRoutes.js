@@ -12,8 +12,8 @@ router.post('/reject', authMiddleware, businessController.rejectRequest);
 router.post('/employees/business', authMiddleware, businessController.showBuisnessforEmployee);
 
 // Inventory routes
-router.post('/:businessId/products', authMiddleware, businessController.addProduct); // Add product
-router.get('/:businessId/products', authMiddleware, businessController.viewInventory); // View all products
+router.post('/add/products', authMiddleware, businessController.addProduct); // Add product
+router.get('/products', authMiddleware, businessController.viewInventory); // View all products
 router.get('/:businessId/products/:productId', authMiddleware, businessController.viewProduct); // View specific product
 router.put('/:businessId/products/:productId', authMiddleware, businessController.updateProduct); // Update product
 router.delete('/:businessId/products/:productId', authMiddleware, businessController.removeProduct); // Remove product
