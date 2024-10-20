@@ -166,6 +166,11 @@ exports.showBusinesses = async (req, res) => {
 
 
 
+
+
+  
+
+
   // Add a new product to the inventory
   exports.addProduct = async (req, res) => {
     const { productId, productName, productDescription, quantity, price } = req.body;
