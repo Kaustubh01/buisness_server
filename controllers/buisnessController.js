@@ -173,20 +173,16 @@ exports.showBusinesses = async (req, res) => {
 
   // Add a new product to the inventory
   exports.addProduct = async (req, res) => {
-    const { productId, productName, productDescription, quantity, price } = req.body;
+    const {  productName, productDescription, quantity, price } = req.body;
   
     try {
       const product = new Inventory({
-        productId,
+        
         productName,
         productDescription,
         quantity,
         price,
       });
-
-      if(!productId) {
-        return res.status(400).json({ error: 'Product ID is required' });
-      }
 
       if(!productName) {
         return res.status(400).json({ error: 'Product Name is required' });
@@ -203,7 +199,7 @@ exports.showBusinesses = async (req, res) => {
       if(!price) {
         return res.status(400).json({ error: 'Price is required' });
       }
-      
+
   
       await product.save();
       res.status(201).json({ message: 'Product added successfully', product });
